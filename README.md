@@ -1,7 +1,7 @@
 # dotfiles-deploy
 
 ## What this script does
-This script deploys my special (dotfiles)[https://github.com/0xBooper/dotfiles].
+This script deploys my special [dotfiles](https://github.com/0xBooper/dotfiles)
 It also installs all the things needed
 
 ## A few warnings
