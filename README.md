@@ -8,7 +8,7 @@ It also installs all the things needed
 This script ***WILL*** overwrite your existing dotfiles.
 
 ## Things needed 
-This script needs a (ideally fresh) install of Arch Linux.
+This script needs a ideally fresh install of Arch Linux.
 The user should have superuser permissions.
 
 ## What about Debian?
