@@ -7,7 +7,8 @@ function deploy () {
     cd ~
     git clone https://github.com/0xBooper/dotfiles.git
     cd dotfiles
-    cp -r -t ~ .config .bashrc .zshrc .xinitrc .zsh.pre-oh-my-zsh .oh-my-zsh
+    rm -rf .git 
+    cp -r -f .* ~
     echo "Dotfiles have been deployed! Run bash or run zsh to enter my dotfiles!"
     exit 0
 }
