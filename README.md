@@ -1,5 +1,9 @@
 # dotfiles-deploy
 
+# NOTICE:
+This script is still in development, and, until the first official version, the script will be in the `in-dev` branch.
+Once merged to the `main` branch, the following install steps will work.
+
 ## What this script does
 This script deploys my special [dotfiles](https://github.com/0xBooper/dotfiles)
 It also installs all the things needed
