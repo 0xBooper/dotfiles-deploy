@@ -1,15 +1,23 @@
 #/usr/bin/env bash
+# 0xBooper's dotfile deployer script. Licensed under the GPLv3 license.
+
 
 # Proceed function
-function proceed () {
-  echo "Installing required things..."
-  pacman -S awesome xorg xorg-xinit zsh --noconfirm
+proceed () {
+  echo "Updating system..."
+  sudo pacman -Syu
+  echo "Downloading required things..."
+  sudo pacman -S awesome git neofetch neovim base-devel xorg xorg-xinit zsh --noconfirm
   echo "Getting dotfiles..."
   git clone https://github.com/0xBooper/dotfiles.git
   echo "Deploying dotfiles..."
   cd dotfiles
   rm -rf .git README.md LICENSE .gitignore images
   mv -f .* ~
+  echo "Installing some other things..."
+  git clone https://github.com/dylanaraps/pfetch.git
+  cd pfetch
+  sudo make install
   echo "Deploying wallpapers for AwesomeWM"
   mv -f Wallpapers ~
   echo "Dotfiles have been fully deployed!"
