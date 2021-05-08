@@ -17,7 +17,7 @@ proceed () {
   echo "Installing some other things..."
   git clone https://github.com/dylanaraps/pfetch.git
   cd pfetch
-  sudo make install
+  make install
   echo "Deploying wallpapers for AwesomeWM"
   mv -f Wallpapers ~
   echo "Dotfiles have been fully deployed!"
