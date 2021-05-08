@@ -23,10 +23,7 @@ However, Debian (and Debian based distros) are planned to be supported.
 First, grab the script. Make sure your internet works, and run:
 `wget https://raw.githubusercontent.com/0xBooper/dotfiles-deploy/main/deploydotfiles.sh`
 
-Second, give it permissions. Run:
-`chmod +x dotfilesdeploy.sh`
-
-Third, run it. Run the command:
+Second, run it. Run the command:
 `./dotfilesdeploy.sh`
 
 After the script has finished, your system now has my dotfiles!
