@@ -1,6 +1,26 @@
 #!/bin/sh
 # 0xBooper's dotfile deployer script. Licensed under the GPLv3 license.
 
+# Install scripts function
+scriptsInstall () {
+  git clone https://github.com/0xBooper/Scripts
+  mkdir ~/temp
+  mv ~/Scripts/Scripts/* ~/temp
+  rm -rf ~/Scripts
+
+  mkdir ~/Scripts
+  mv ~/temp/* ~/Scripts
+  rm -rf ~/temp
+
+  finish 
+}
+
+# Finish function
+finish () {
+    echo "My (0xBooper)'s dotfiles have successfully been installed onto your system."
+    echo "Have a nice day/night."
+    exit 0
+}
 
 # Proceed function
 proceed () {
@@ -35,11 +55,12 @@ proceed () {
   mkdir --parents ~/Media/Wallpapers
   mv ~/wallpapers/wallpapers/*.jpg ~/Media/Wallpapers
   rm -rf ~/wallpapers
-  
-  bash
-  echo "Dotfiles have been fully deployed!"
-  echo "Enjoy your system!"
-  exit 0
+
+  read -p "Do you also want to install my scripts? (Y/n)" userinput
+  case $userinput in
+      Y|y) scriptsInstall;;
+      N|n) exit;;
+      *) echo "Unknown input."; exit 1;;
 }
 
 # Get confirmation
