@@ -65,6 +65,7 @@ proceed () {
       Y|y) scriptsInstall;;
       N|n) exit;;
       *) echo "Unknown input."; exit 1;;
+  esac
 }
 
 # Get confirmation
