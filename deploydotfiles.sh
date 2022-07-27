@@ -39,14 +39,18 @@ proceed () {
   cd dotfiles
   rm -rf .git README.md LICENSE .gitignore
   mv -f * ~
-  
+
   echo "Installing some other things..."
+
   echo "Downloading pfetch..."
   git clone https://github.com/dylanaraps/pfetch.git
   echo "Installing pfetch..."
   cd ~/pfetch && sudo make install
   echo "Cleaning up..."
   rm -rf ~/pfetch
+
+  echo "Installing dmenu"
+  sudo pacman -S dmenu
   
   echo "Downloading wallpapers..."
   git clone https://github.com/makccr/wallpapers.git
