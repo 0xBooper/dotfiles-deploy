@@ -17,6 +17,11 @@ scriptsInstall () {
 
 # Finish function
 finish () {
+    read -p "Would you like to install some the applications I use? (discord, firefox) (Y/n)" USERINPUT
+    case $USERINPUT in
+        Y|y) sudo pacman -S discord firefox --noconfirm;;
+    esac
+
     echo "My (0xBooper)'s dotfiles have successfully been installed onto your system."
     echo "Have a nice day/night."
     exit 0
@@ -30,7 +35,7 @@ proceed () {
   sudo pacman -Syu --noconfirm
   
   echo "Installing required things..."
-  sudo pacman -S awesome git neofetch neovim base-devel xorg xorg-xinit zsh dmenu nitrogen --noconfirm
+  sudo pacman -S awesome git neofetch neovim base-devel xorg xorg-xinit zsh dmenu nitrogen alacritty --noconfirm
   
   echo "Getting dotfiles..."
   git clone https://github.com/0xBooper/dotfiles.git 
