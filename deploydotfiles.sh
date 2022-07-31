@@ -52,6 +52,10 @@ proceed () {
   echo "Installing dmenu"
   sudo pacman -S dmenu
   
+  echo "Installing plugin manager for Neovim (vim-plug)"
+  curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs \
+       https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+
   echo "Downloading wallpapers..."
   git clone https://github.com/makccr/wallpapers.git
   
@@ -73,5 +77,5 @@ read -p "Are you sure you want to do this?\nThis will overwrite your existing do
 case $userinput in
   Y|y) proceed;;
   N|n) echo "Aborting..."; exit 0;;
-  *) echo "Unknown input. Terminating..."; exit 1;;
+  *) echo "Unknown input, terminating with no changes made."; exit 1;;
 esac
