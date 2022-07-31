@@ -49,12 +49,14 @@ proceed () {
   echo "Cleaning up..."
   rm -rf ~/pfetch
 
-  echo "Installing dmenu"
+  echo "Installing dmenu..."
   sudo pacman -S dmenu
   
-  echo "Installing plugin manager for Neovim (vim-plug)"
+  echo "Installing plugin manager for Neovim (vim-plug...)"
   curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs \
        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  echo "To install the plugins, open Neovim and run :PlugInstall"
+  sleep 1
 
   echo "Downloading wallpapers..."
   git clone https://github.com/makccr/wallpapers.git
@@ -67,7 +69,7 @@ proceed () {
   read -p "Do you also want to install my scripts? (Y/n)" userinput
   case $userinput in
       Y|y) scriptsInstall;;
-      N|n) exit;;
+      N|n) finish;; 
       *) echo "Unknown input."; exit 1;;
   esac
 }
