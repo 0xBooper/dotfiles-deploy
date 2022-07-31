@@ -40,8 +40,6 @@ proceed () {
   rm -rf .git README.md LICENSE .gitignore
   mv -f * ~
 
-  echo "Installing some other things..."
-
   echo "Downloading pfetch..."
   git clone https://github.com/dylanaraps/pfetch.git
   echo "Installing pfetch..."
@@ -52,11 +50,14 @@ proceed () {
   echo "Installing dmenu..."
   sudo pacman -S dmenu
   
-  echo "Installing plugin manager for Neovim (vim-plug...)"
+  echo "Installing plugin manager for Neovim... (vim-plug)"
   curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs \
        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
   echo "To install the plugins, open Neovim and run :PlugInstall"
   sleep 1
+
+  echo "Installing fonts required for Neovim..."
+  sudo pacman -S nerd-fonts
 
   echo "Downloading wallpapers..."
   git clone https://github.com/makccr/wallpapers.git
