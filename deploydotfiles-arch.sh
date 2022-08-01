@@ -100,6 +100,9 @@ proceed () {
   mv ~/wallpapers/wallpapers/*.jpg ~/Media/Wallpapers
   rm -rf ~/wallpapers
 
+  echo "Setting .xinitrc..."
+  echo "awesome" >> ~/.xinitrc
+
   read -p "Do you also want to install my scripts? (Y/n)" USERINPUT
   case $USERINPUT in
       Y|y) scriptsInstall;;
