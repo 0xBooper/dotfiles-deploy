@@ -44,7 +44,7 @@ proceed () {
   sudo pacman -Syu --noconfirm
   
   echo "Installing required things..."
-  sudo pacman -S --needed awesome git neofetch neovim base-devel xorg xorg-xinit zsh dmenu nitrogen alacritty --noconfirm
+  sudo pacman -S --needed awesome git neofetch neovim base-devel xorg xorg-xinit zsh dmenu nitrogen alacritty picom --noconfirm
   
   echo "Getting dotfiles..."
   git clone https://github.com/0xBooper/dotfiles.git 
