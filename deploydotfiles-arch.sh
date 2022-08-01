@@ -109,7 +109,8 @@ proceed () {
 }
 
 # Get confirmation
-read -p "Are you sure you want to do this?\nThis will overwrite your existing dotfiles. (Y/n)" 
+echo -e "Are you sure you want to do this?\nThis will overwrite your existing dotfiles. (Y/n)" 
+read USERINPUT
 case $USERINPUT in
   Y|y) proceed;;
   N|n) echo "Aborting... (no changes made)"; exit 0;;

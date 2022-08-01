@@ -17,7 +17,7 @@ However, Debian (and Debian based distros) are planned to be supported.
 
 ## Actually using it
 First, grab the script and run it.. Make sure your internet works, and run:
-`curl https://raw.githubusercontent.com/0xBooper/dotfiles-deploy/main/deploydotfiles.sh | bash`
+`curl https://raw.githubusercontent.com/0xBooper/dotfiles-deploy/main/deploydotfiles-arch.sh | bash`
 
 If you're feeling nervous about the script, you can `wget` the script and check & edit it.
 
