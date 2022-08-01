@@ -17,12 +17,13 @@ scriptsInstall () {
 
 # Finish function
 finish () {
-    read -p "Would you like to install some the applications I use? (discord, firefox) (Y/n)" USERINPUT
+    read -p "Would you like to install some of the applications I use? (discord, firefox) (Y/n)" USERINPUT
     case $USERINPUT in
         Y|y) sudo pacman -S discord firefox --noconfirm;;
     esac
 
     echo "My (0xBooper)'s dotfiles have successfully been installed onto your system."
+    echo "Take some time to look at them and configure it however you want."
     echo "Have a nice day/night."
     exit 0
 }
@@ -31,6 +32,9 @@ finish () {
 proceed () {
   cd ~
   
+  echo "Updating keyring..."
+  sudo pacman -Sy archlinux-keyring --noconfirm
+
   echo "Updating system..."
   sudo pacman -Syu --noconfirm
   
@@ -41,9 +45,11 @@ proceed () {
   git clone https://github.com/0xBooper/dotfiles.git 
   
   echo "Deploying dotfiles..."
-  cd dotfiles
-  rm -rf .git README.md LICENSE .gitignore
-  mv -f * ~
+  rm -rf ~/dotfiles/.git ~/dotfiles/README.md ~/dotfiles/LICENSE ~/dotfiles/.gitignore
+  mv -f ~/dotfiles/* ~
+
+  echo "Cleaning up..."
+  rmdir dotfiles
 
   echo "Downloading pfetch..."
   git clone https://github.com/dylanaraps/pfetch.git
@@ -69,8 +75,8 @@ proceed () {
   mv ~/wallpapers/wallpapers/*.jpg ~/Media/Wallpapers
   rm -rf ~/wallpapers
 
-  read -p "Do you also want to install my scripts? (Y/n)" userinput
-  case $userinput in
+  read -p "Do you also want to install my scripts? (Y/n)" USERINPUT
+  case $USERINPUT in
       Y|y) scriptsInstall;;
       N|n) finish;; 
       *) echo "Unknown input."; exit 1;;
@@ -78,9 +84,9 @@ proceed () {
 }
 
 # Get confirmation
-read -p "Are you sure you want to do this?\nThis will overwrite your existing dotfiles. (Y/n)" userinput
-case $userinput in
+read -p "Are you sure you want to do this?\nThis will overwrite your existing dotfiles. (Y/n)" 
+case $USERINPUT in
   Y|y) proceed;;
-  N|n) echo "Aborting..."; exit 0;;
+  N|n) echo "Aborting... (no changes made)"; exit 0;;
   *) echo "Unknown input, terminating with no changes made."; exit 1;;
 esac
