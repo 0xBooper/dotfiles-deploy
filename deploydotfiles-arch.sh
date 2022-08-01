@@ -44,17 +44,21 @@ proceed () {
   sudo pacman -Syu --noconfirm
   
   echo "Installing required things..."
-  sudo pacman -S --needed awesome git neofetch neovim base-devel xorg xorg-xinit zsh dmenu nitrogen alacritty picom --noconfirm
+  sudo pacman -S --needed exa highlight awesome git neofetch neovim base-devel xorg xorg-xinit zsh dmenu nitrogen alacritty picom --noconfirm
   
   echo "Getting dotfiles..."
   git clone https://github.com/0xBooper/dotfiles.git 
   
   echo "Deploying dotfiles..."
   rm -rf ~/dotfiles/.git ~/dotfiles/README.md ~/dotfiles/LICENSE ~/dotfiles/.gitignore
-  mv -f ~/dotfiles/* ~
+
+  mkdir ~/.config
+  mv -f ~/dotfiles/.config/* ~/.config
+  mv -f ~/dotfiles/.bashrc ~
+  mv -f ~/dotfiles/.bash_profile ~
 
   echo "Cleaning up..."
-  rmdir dotfiles
+  rmdir ~/dotfiles
 
   echo "Downloading pfetch..."
   git clone https://github.com/dylanaraps/pfetch.git
@@ -97,7 +101,7 @@ proceed () {
   
   echo "Deploying wallpapers..."
   mkdir --parents ~/Media/Wallpapers
-  mv ~/wallpapers/wallpapers/*.jpg ~/Media/Wallpapers
+  mv ~/wallpapers/wallpapers/*/*.jpg ~/Media/Wallpapers
   rm -rf ~/wallpapers
 
   echo "Setting .xinitrc..."
