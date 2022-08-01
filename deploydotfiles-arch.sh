@@ -3,13 +3,18 @@
 
 # Install scripts function
 scriptsInstall () {
+  echo "Downloading scripts..."
   git clone https://github.com/0xBooper/Scripts
   mkdir ~/temp
+
   mv ~/Scripts/Scripts/* ~/temp
   rm -rf ~/Scripts
-
   mkdir ~/Scripts
+
+  echo "Deploying scripts..."
   mv ~/temp/* ~/Scripts
+
+  echo "Cleaning up..."
   rm -rf ~/temp
 
   finish 
@@ -19,7 +24,7 @@ scriptsInstall () {
 finish () {
     read -p "Would you like to install some of the applications I use? (discord, firefox) (Y/n)" USERINPUT
     case $USERINPUT in
-        Y|y) sudo pacman -S discord firefox --noconfirm;;
+        Y|y) sudo pacman -S --needed discord firefox --noconfirm;;
     esac
 
     echo "My (0xBooper)'s dotfiles have successfully been installed onto your system."
@@ -39,7 +44,7 @@ proceed () {
   sudo pacman -Syu --noconfirm
   
   echo "Installing required things..."
-  sudo pacman -S awesome git neofetch neovim base-devel xorg xorg-xinit zsh dmenu nitrogen alacritty --noconfirm
+  sudo pacman -S --needed awesome git neofetch neovim base-devel xorg xorg-xinit zsh dmenu nitrogen alacritty --noconfirm
   
   echo "Getting dotfiles..."
   git clone https://github.com/0xBooper/dotfiles.git 
@@ -58,6 +63,26 @@ proceed () {
   echo "Cleaning up..."
   rm -rf ~/pfetch
 
+  echo "Downloading yay (AUR helper)..."
+  sudo pacman -S --needed base-devel --noconfirm 
+  git clone https://aur.archlinux.org/yay.git
+  
+  echo "Installing yay (AUR helper)..."
+  cd yay
+  makepkg -si
+
+  echo "Cleaning up..."
+  cd ~
+  rm -rf ~/yay
+
+  echo "Getting yay setup..."
+  yay -Y --gendb
+  yay -Syu --devel
+  yay -Y --devel --save
+
+  echo "Installing ly (login manager)"
+  yay -S ly
+
   echo "Installing plugin manager for Neovim... (vim-plug)"
   curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs \
        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
@@ -65,7 +90,7 @@ proceed () {
   sleep 1
 
   echo "Installing fonts required for Neovim..."
-  sudo pacman -S nerd-fonts --noconfirm
+  sudo pacman -S --needed nerd-fonts --noconfirm
 
   echo "Downloading wallpapers..."
   git clone https://github.com/makccr/wallpapers.git
