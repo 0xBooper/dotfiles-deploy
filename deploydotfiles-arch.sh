@@ -68,7 +68,7 @@ while [ -z $LOOP_MAIN_DONE ]; do
         read -p "Do you want to install my grub wallpaper (and config?) " USERINPUT
         case $USERINPUT in
           Y|y) 
-            [ ! -d ~/Media/Wallpapers] && mkdir --parents ~/Media/Wallpapers
+            [ ! -d ~/Media/Wallpapers ] && mkdir --parents ~/Media/Wallpapers
             sudo mv -f ~/dotfiles/grub/grub  /etc/default/grub
             mv -f ~/dotfiles/grub/sunset.png ~/Media/Wallpapers
             LOOP_OPTGRUB_DONE=yes
