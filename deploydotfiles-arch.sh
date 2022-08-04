@@ -82,7 +82,7 @@ while [ -z $LOOP_MAIN_DONE ]; do
       done
       
       echo "Cleaning up..."
-      rmdir ~/dotfiles
+      rm -rf ~/dotfiles
       
       echo "Downloading wallpapers..."
       git clone --depth 1 https://github.com/makccr/wallpapers.git
