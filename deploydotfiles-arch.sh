@@ -103,7 +103,7 @@ while [ -z $LOOP_MAIN_DONE ]; do
       git clone https://aur.archlinux.org/yay.git
       
       echo "Installing yay (AUR helper)..."
-      cd yay
+      cd ~/yay
       makepkg -si
       
       echo "Cleaning up..."
@@ -161,6 +161,8 @@ while [ -z $LOOP_MAIN_DONE ]; do
         read -p "Would you like to install some of the applications I use? (discord, firefox) (Y/n)" USERINPUT
         case $USERINPUT in
             Y|y) sudo pacman -S --needed discord firefox --noconfirm;;
+            N|n) echo "Proceeding..." && LOOP_OPTAPP_DONE=yes;;
+            *) echo "Unknown input";;
         esac
       done
 
