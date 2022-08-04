@@ -32,12 +32,12 @@ while [ -z $LOOP_MAIN_DONE ]; do
               [ -z $LOOP_USERADD_DONE ] && [ -z $USERNAME ] && echo "The name of the user is required!"
 
               # Check for met values
-              [ -z $LOOP_USERADD_DONE ] && [ -n $USERNAME ] && [ $USERSUDO = Y -o $USERSUDO = y ] && [ -n $USERGROUPS ] && echo "Creating user..." && sudo useradd -G wheel,$USERGROUPS -m $USERNAME && sudo passwd $USERNAME && su $USERNAME && LOOP_USERADD_DONE=yes
-              [ -z $LOOP_USERADD_DONE ] && [ -n $USERNAME ] && [ -n $USERGROUPS ] && echo "Creating user..." && sudo useradd -G $USERGROUPS -m $USERNAME && sudo passwd $USERNAME && su $USERNAME && LOOP_USERADD_DONE=yes
-              [ -z $LOOP_USERADD_DONE ] && [ -n $USERNAME ] && [ $USERSUDO = Y -o $USERSUDO = y ] && echo "Creating user..." && sudo useradd -G wheel -m $USERNAME && sudo passwd $USERNAME && su $USERNAME && LOOP_USERADD_DONE=yes
+              [ -z $LOOP_USERADD_DONE ] && [ -n $USERNAME ] && [ $USERSUDO = Y -o $USERSUDO = y ] && [ -n $USERGROUPS ] && echo "Creating user..." && LOOP_USERADD_DONE=yes
+              [ -z $LOOP_USERADD_DONE ] && [ -n $USERNAME ] && [ -n $USERGROUPS ] && echo "Creating user..." && LOOP_USERADD_DONE=yes
+              [ -z $LOOP_USERADD_DONE ] && [ -n $USERNAME ] && [ $USERSUDO = Y -o $USERSUDO = y ] && echo "Creating user..." && LOOP_USERADD_DONE=yes
             done
             ;;
-          N|n) echo "Proceeding..." && LOOP_USERADD_DONE=yes;;
+          N|n) echo "Proceeding..." && LOOP_USERADD_DONE=yes ;;
           *) echo "Unknown input.";;
         esac
       done
@@ -45,36 +45,36 @@ while [ -z $LOOP_MAIN_DONE ]; do
       cd ~ 
   
       echo "Updating keyring..."
-      sudo pacman -Sy archlinux-keyring --noconfirm
+      #sudo pacman -Sy archlinux-keyring --noconfirm
       
       echo "Updating system..."
-      sudo pacman -Su --noconfirm
+      #sudo pacman -Su --noconfirm
       
       echo "Installing required things..."
-      sudo pacman -S --needed exa highlight awesome git neofetch neovim base-devel xorg xorg-xinit zsh dmenu nitrogen kitty picom --noconfirm
+      #sudo pacman -S --needed exa highlight awesome git neofetch neovim base-devel xorg xorg-xinit zsh dmenu nitrogen kitty picom --noconfirm
       
       echo "Getting dotfiles..."
-      git clone https://github.com/0xBooper/dotfiles.git 
+      #git clone https://github.com/0xBooper/dotfiles.git 
       
       echo "Deploying dotfiles..."
-      rm -rf ~/dotfiles/.git ~/dotfiles/README.md ~/dotfiles/LICENSE ~/dotfiles/.gitignore
+      #rm -rf ~/dotfiles/.git ~/dotfiles/README.md ~/dotfiles/LICENSE ~/dotfiles/.gitignore
       
-      [ ! -d ~/.config ] && mkdir ~/.config
-      mv -f ~/dotfiles/.config/* ~/.config
-      mv -f ~/dotfiles/.bashrc ~
-      mv -f ~/dotfiles/.bash_profile ~
+      #[ ! -d ~/.config ] && mkdir ~/.config
+      #mv -f ~/dotfiles/.config/* ~/.config
+      #mv -f ~/dotfiles/.bashrc ~
+      #mv -f ~/dotfiles/.bash_profile ~
 
       while [ -z $LOOP_OPTGRUB_DONE ]; do
         read -p "Do you want to install my grub wallpaper (and config?) " USERINPUT
         case $USERINPUT in
           Y|y) 
-            [ ! -d ~/Media/Wallpapers] && mkdir --parents ~/Media/Wallpapers
-            sudo mv -f ~/dotfiles/grub/grub  /etc/default/grub
-            mv -f ~/dotfiles/grub/sunset.png ~/Media/Wallpapers
+            #[ ! -d ~/Media/Wallpapers] && mkdir --parents ~/Media/Wallpapers
+            #sudo mv -f ~/dotfiles/grub/grub  /etc/default/grub
+            #mv -f ~/dotfiles/grub/sunset.png ~/Media/Wallpapers
             LOOP_OPTGRUB_DONE=yes
             ;;
           N|n)
-            echo "Proceeding..."
+            #echo "Proceeding..."
             LOOP_OPTGRUB_DONE=yes
             ;;
           *) echo "Unknown input";;
@@ -82,73 +82,73 @@ while [ -z $LOOP_MAIN_DONE ]; do
       done
       
       echo "Cleaning up..."
-      rmdir ~/dotfiles
+      #rmdir ~/dotfiles
       
       echo "Downloading wallpapers..."
-      git clone --depth 1 https://github.com/makccr/wallpapers.git
+      #git clone --depth 1 https://github.com/makccr/wallpapers.git
 
       echo "Deploying wallpapers..."
-      [ ! -d ~/Media/Wallpapers ] && mkdir --parents ~/Media/Wallpapers
-      mv ~/wallpapers/wallpapers/*/*.jpg ~/Media/Wallpapers
+      #[ ! -d ~/Media/Wallpapers ] && mkdir --parents ~/Media/Wallpapers
+      #mv ~/wallpapers/wallpapers/*/*.jpg ~/Media/Wallpapers
 
       echo "Downloading pfetch..."
-      git clone https://github.com/dylanaraps/pfetch.git
+      #git clone https://github.com/dylanaraps/pfetch.git
       echo "Installing pfetch..."
-      cd ~/pfetch && sudo make install
+      #cd ~/pfetch && sudo make install
       echo "Cleaning up..."
-      rm -rf ~/pfetch
+      #rm -rf ~/pfetch
       
       echo "Downloading yay (AUR helper)..."
-      sudo pacman -S --needed base-devel --noconfirm 
-      git clone https://aur.archlinux.org/yay.git
+      #sudo pacman -S --needed base-devel --noconfirm 
+      #git clone https://aur.archlinux.org/yay.git
       
       echo "Installing yay (AUR helper)..."
-      cd yay
-      makepkg -si
+      #cd yay
+      #makepkg -si
       
       echo "Cleaning up..."
-      cd ~
-      rm -rf ~/yay
+      #cd ~
+      #rm -rf ~/yay
       
       echo "Getting yay setup..."
-      yay -Y --gendb
-      yay -Syu --devel
-      yay -Y --devel --save
+      #yay -Y --gendb
+      #yay -Syu --devel
+      #yay -Y --devel --save
       
       echo "Installing ly (login manager)"
-      yay -S ly
+      #yay -S ly
       
       echo "Installing plugin manager for Neovim... (vim-plug)"
-      curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs \
-           https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+      #curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs \
+      #     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
       echo "To install the plugins, open Neovim and run :PlugInstall"
       sleep 1
       
       echo "Installing fonts required for Neovim..."
-      sudo pacman -S --needed nerd-fonts --noconfirm
+      #sudo pacman -S --needed nerd-fonts --noconfirm
       
-      rm -rf ~/wallpapers
+      #rm -rf ~/wallpapers
       
       echo "Setting .xinitrc..."
-      echo "awesome" >> ~/.xinitrc
+      #echo "awesome" >> ~/.xinitrc
       
       while [ -z $LOOP_SCRIPTS_DONE ]; do
         read -p "Do you also want to install my scripts? (Y/n)" USERINPUT
         case $USERINPUT in
             Y|y) 
               echo "Downloading scripts..."
-              git clone https://github.com/0xBooper/Scripts
-              mkdir ~/temp
+              #git clone https://github.com/0xBooper/Scripts
+              #mkdir ~/temp
             
-              mv ~/Scripts/Scripts/* ~/temp
-              rm -rf ~/Scripts
-              mkdir ~/Scripts
+              #mv ~/Scripts/Scripts/* ~/temp
+              #rm -rf ~/Scripts
+              #mkdir ~/Scripts
             
               echo "Deploying scripts..."
-              mv ~/temp/* ~/Scripts
+              #mv ~/temp/* ~/Scripts
             
               echo "Cleaning up..."
-              rm -rf ~/temp
+              #rm -rf ~/temp
 
               LOOP_SCRIPTS_DONE=yes
               ;;
@@ -160,7 +160,17 @@ while [ -z $LOOP_MAIN_DONE ]; do
       while [ -z $LOOP_OPTAPP_DONE ]; do
         read -p "Would you like to install some of the applications I use? (discord, firefox) (Y/n)" USERINPUT
         case $USERINPUT in
-            Y|y) sudo pacman -S --needed discord firefox --noconfirm;;
+            Y|y) 
+              #sudo pacman -S --needed discord firefox --noconfirm;;
+              LOOP_OPTAPP_DONE=yes
+              ;;
+            N|n)
+              echo "Proceeding..."
+              LOOP_OPTAPP_DONE=yes
+              ;;
+            *)
+              echo "Unknown input"
+              ;;
         esac
       done
 
