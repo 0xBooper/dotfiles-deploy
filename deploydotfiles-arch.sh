@@ -11,6 +11,11 @@ finish () {
   
   # Cleanup variables
   unset $USERINPUT
+  unset $LOOP_MAIN_DONE
+  unset $LOOP_USERADD_DONE
+  unset $LOOP_OPTAPP_DONE 
+  unset $LOOP_OPTGRUB_DONE
+  unset $LOOP_SCRIPTS_DONE
 }
 
 while [ -z $LOOP_MAIN_DONE ]; do
@@ -45,10 +50,10 @@ while [ -z $LOOP_MAIN_DONE ]; do
       cd ~ 
   
       echo "Updating keyring..."
-      sudo pacman -Sy archlinux-keyring --noconfirm
+      sudo pacman -Sy archlinux-keyring --noconfirm --needed
       
       echo "Updating system..."
-      sudo pacman -Su --noconfirm
+      sudo pacman -Su --noconfirm --needed
       
       echo "Installing required things..."
       sudo pacman -S --needed exa highlight awesome git neofetch neovim base-devel xorg xorg-xinit zsh dmenu nitrogen kitty picom --noconfirm
@@ -63,9 +68,10 @@ while [ -z $LOOP_MAIN_DONE ]; do
       mv -f ~/dotfiles/.config/* ~/.config
       mv -f ~/dotfiles/.bashrc ~
       mv -f ~/dotfiles/.bash_profile ~
+      mv -f ~/dotfiles/.editorconfig ~
 
       while [ -z $LOOP_OPTGRUB_DONE ]; do
-        read -p "Do you want to install my grub wallpaper (and config?) " USERINPUT
+        read -p "Do you want to install my grub wallpaper (and config?) (Y/n) " USERINPUT
         case $USERINPUT in
           Y|y) 
             [ ! -d ~/Media/Wallpapers ] && mkdir --parents ~/Media/Wallpapers
@@ -90,25 +96,24 @@ while [ -z $LOOP_MAIN_DONE ]; do
       echo "Deploying wallpapers..."
       [ ! -d ~/Media/Wallpapers ] && mkdir --parents ~/Media/Wallpapers
       mv ~/wallpapers/wallpapers/*/*.jpg ~/Media/Wallpapers
+      rm -rf ~/wallpapers
 
       echo "Downloading pfetch..."
       git clone https://github.com/dylanaraps/pfetch.git
       echo "Installing pfetch..."
       cd ~/pfetch && sudo make install
       echo "Cleaning up..."
-      rm -rf ~/pfetch
+      cd ~ && rm -rf ~/pfetch
       
       echo "Downloading yay (AUR helper)..."
       sudo pacman -S --needed base-devel --noconfirm 
       git clone https://aur.archlinux.org/yay.git
       
       echo "Installing yay (AUR helper)..."
-      cd ~/yay
-      makepkg -si
+      cd ~/yay && makepkg -si
       
       echo "Cleaning up..."
-      cd ~
-      rm -rf ~/yay
+      cd ~ && rm -rf ~/yay
       
       echo "Getting yay setup..."
       yay -Y --gendb
@@ -127,13 +132,12 @@ while [ -z $LOOP_MAIN_DONE ]; do
       echo "Installing fonts required for Neovim..."
       sudo pacman -S --needed nerd-fonts --noconfirm
       
-      rm -rf ~/wallpapers
       
       echo "Setting .xinitrc..."
       echo "awesome" >> ~/.xinitrc
       
       while [ -z $LOOP_SCRIPTS_DONE ]; do
-        read -p "Do you also want to install my scripts? (Y/n)" USERINPUT
+        read -p "Do you also want to install my scripts? (Y/n) " USERINPUT
         case $USERINPUT in
             Y|y) 
               echo "Downloading scripts..."
