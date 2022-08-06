@@ -142,12 +142,14 @@ while [ -z $LOOP_MAIN_DONE ]; do
       echo "Downloading nord theme (rofi)..."
       git clone https://github.com/lr-tech/rofi-themes-collection
       mkdir -p ~/.local/share/rofi/themes
-      cp ~/rofi-themes-collection/themes/nord.rasi ~/.local/share/rofi/themes/
+      cp ~/rofi-themes-collection/themes/*.rasi ~/.local/share/rofi/themes/
 
       echo "A prompt will open. Select the nord theme, or any other preferrable rofi theme."
       sleep 1
       rofi-theme-selector
 
+      echo "Cleaning up..."
+      rm -rf ~/rofi-themes-collection
 
       while [ -z $LOOP_SCRIPTS_DONE ]; do
         read -p "Do you also want to install my scripts? (Y/n) " USERINPUT
