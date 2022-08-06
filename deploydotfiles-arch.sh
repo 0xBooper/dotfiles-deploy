@@ -120,8 +120,11 @@ while [ -z $LOOP_MAIN_DONE ]; do
       yay -Syu --devel
       yay -Y --devel --save
       
-      echo "Installing ly (login manager)"
+      echo "Installing ly (login manager)..."
       yay -S ly
+
+      echo "Enabling ly (login manager)..."
+      sudo systemctl enable ly
       
       echo "Installing plugin manager for Neovim... (vim-plug)"
       curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs \
