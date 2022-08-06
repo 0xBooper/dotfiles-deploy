@@ -133,7 +133,7 @@ while [ -z $LOOP_MAIN_DONE ]; do
       sleep 1
       
       echo "Installing fonts required for Neovim..."
-      sudo pacman -S --needed nerd-fonts --noconfirm
+      sudo pacman -S --needed nerd-fonts ttf-fira-code --noconfirm
       
       echo "Setting .xinitrc..."
       echo "awesome" >> ~/.xinitrc
