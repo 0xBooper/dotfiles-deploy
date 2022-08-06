@@ -56,7 +56,7 @@ while [ -z $LOOP_MAIN_DONE ]; do
       sudo pacman -Su --noconfirm --needed
       
       echo "Installing required things..."
-      sudo pacman -S --needed exa highlight awesome git neofetch neovim base-devel xorg xorg-xinit zsh dmenu nitrogen kitty picom --noconfirm
+      sudo pacman -S --needed exa highlight awesome git neofetch neovim base-devel xorg xorg-xinit zsh rofi nitrogen kitty picom kmix network-manager-applet --noconfirm
       
       echo "Getting dotfiles..."
       git clone https://github.com/0xBooper/dotfiles.git 
@@ -132,10 +132,23 @@ while [ -z $LOOP_MAIN_DONE ]; do
       echo "Installing fonts required for Neovim..."
       sudo pacman -S --needed nerd-fonts --noconfirm
       
-      
       echo "Setting .xinitrc..."
       echo "awesome" >> ~/.xinitrc
       
+      echo "Setting rofi up..."
+      mkdir --parents ~/.config/rofi
+      rofi -dump-config > ~/.config/rofi/config.rasi
+
+      echo "Downloading nord theme (rofi)..."
+      git clone https://github.com/lr-tech/rofi-themes-collection
+      mkdir -p ~/.local/share/rofi/themes
+      cp ~/rofi-themes-collection/themes/nord.rasi ~/.local/share/rofi/themes/
+
+      echo "A prompt will open. Select the nord theme, or any other preferrable rofi theme."
+      sleep 1
+      rofi-theme-selector
+
+
       while [ -z $LOOP_SCRIPTS_DONE ]; do
         read -p "Do you also want to install my scripts? (Y/n) " USERINPUT
         case $USERINPUT in
