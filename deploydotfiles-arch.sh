@@ -56,7 +56,7 @@ while [ -z $LOOP_MAIN_DONE ]; do
       sudo pacman -Su --noconfirm --needed
       
       echo "Installing required things..."
-      sudo pacman -S --needed exa highlight awesome git neofetch neovim base-devel xorg xorg-xinit zsh rofi nitrogen kitty picom kmix network-manager-applet --noconfirm
+      sudo pacman -S --needed exa highlight awesome git neofetch neovim base-devel xorg xorg-xinit zsh rofi nitrogen kitty picom kmix polybar network-manager-applet --noconfirm
       
       echo "Getting dotfiles..."
       git clone https://github.com/0xBooper/dotfiles.git 
@@ -65,6 +65,11 @@ while [ -z $LOOP_MAIN_DONE ]; do
       rm -rf ~/dotfiles/.git ~/dotfiles/README.md ~/dotfiles/LICENSE ~/dotfiles/.gitignore
       
       [ ! -d ~/.config ] && mkdir ~/.config
+      [ -d ~/.config/bash ] && rm -rf ~/.config/bash
+      [ -d ~/.config/polybar ] && rm -rf ~/.config/polybar
+      [ -d ~/.config/awesome ] && rm -rf ~/.config/awesome
+      [ -d ~/.config/nvim ] && rm -rf ~/.config/nvim
+      [ -d ~/.config/kitty ] && rm -rf ~/.config/kitty
       mv -f ~/dotfiles/.config/* ~/.config
       mv -f ~/dotfiles/.bashrc ~
       mv -f ~/dotfiles/.bash_profile ~
@@ -74,6 +79,7 @@ while [ -z $LOOP_MAIN_DONE ]; do
         read -p "Do you want to install my grub wallpaper (and config?) (Y/n) " USERINPUT
         case $USERINPUT in
           Y|y) 
+            echo "Installing wallpaper and setting grub config..."
             [ ! -d ~/Media/Wallpapers ] && mkdir --parents ~/Media/Wallpapers
             sudo mv -f ~/dotfiles/grub/grub  /etc/default/grub
             mv -f ~/dotfiles/grub/sunset.png ~/Media/Wallpapers
@@ -98,30 +104,34 @@ while [ -z $LOOP_MAIN_DONE ]; do
       mv ~/wallpapers/wallpapers/*/*.jpg ~/Media/Wallpapers
       rm -rf ~/wallpapers
 
-      echo "Downloading pfetch..."
-      git clone https://github.com/dylanaraps/pfetch.git
-      echo "Installing pfetch..."
-      cd ~/pfetch && sudo make install
-      echo "Cleaning up..."
-      cd ~ && rm -rf ~/pfetch
+      if [ ! -f /bin/pfetch ]; then
+        echo "Downloading pfetch..."
+        git clone https://github.com/dylanaraps/pfetch.git
+        echo "Installing pfetch..."
+        cd ~/pfetch && sudo make install
+        echo "Cleaning up..."
+        cd ~ && rm -rf ~/pfetch
+      fi
       
-      echo "Downloading yay (AUR helper)..."
-      sudo pacman -S --needed base-devel --noconfirm 
-      git clone https://aur.archlinux.org/yay.git
-      
-      echo "Installing yay (AUR helper)..."
-      cd ~/yay && makepkg -si
-      
-      echo "Cleaning up..."
-      cd ~ && rm -rf ~/yay
-      
-      echo "Getting yay setup..."
-      yay -Y --gendb
-      yay -Syu --devel
-      yay -Y --devel --save
+      if [ ! -f /bin/yay ]; then
+        echo "Downloading yay (AUR helper)..."
+        sudo pacman -S --needed base-devel --noconfirm 
+        git clone https://aur.archlinux.org/yay.git
+        
+        echo "Installing yay (AUR helper)..."
+        cd ~/yay && makepkg -si --needed --noconfirm 
+        
+        echo "Cleaning up..."
+        cd ~ && rm -rf ~/yay
+        
+        echo "Getting yay setup..."
+        yay -Y --gendb --needed --noconfirm
+        yay -Syu --devel --needed --noconfirm
+        yay -Y --devel --save --needed --noconfirm
+      fi
       
       echo "Installing ly (login manager)..."
-      yay -S ly
+      yay -S ly --needed --noconfirm --removemake --answerclean All --answerdiff None 
 
       echo "Enabling ly (login manager)..."
       sudo systemctl enable ly
@@ -142,14 +152,13 @@ while [ -z $LOOP_MAIN_DONE ]; do
       mkdir --parents ~/.config/rofi
       rofi -dump-config > ~/.config/rofi/config.rasi
 
-      echo "Downloading nord theme (rofi)..."
+      echo "Downloading rofi themes..." 
       git clone https://github.com/lr-tech/rofi-themes-collection
       mkdir -p ~/.local/share/rofi/themes
       cp ~/rofi-themes-collection/themes/*.rasi ~/.local/share/rofi/themes/
 
-      echo "A prompt will open. Select the nord theme, or any other preferrable rofi theme."
+      echo "To select a theme, run rofi-theme-selector once you have run startx"
       sleep 1
-      rofi-theme-selector
 
       echo "Cleaning up..."
       rm -rf ~/rofi-themes-collection
@@ -178,6 +187,14 @@ while [ -z $LOOP_MAIN_DONE ]; do
             *) echo "Unknown input.";;
         esac
       done
+
+      if [ ! -d ~/Scripts ]; then
+        echo "Downloading polybar startup script..."
+        mkdir ~/Scripts
+        cd ~/Scripts && curl -flO https://raw.githubusercontent.com/0xBooper/Scripts/main/Scripts/launchPolybar 
+        chmod +x ~/Scripts/launchPolybar
+        cd ~
+      fi            
 
       while [ -z $LOOP_OPTAPP_DONE ]; do
         read -p "Would you like to install some of the applications I use? (discord, firefox) (Y/n)" USERINPUT
