@@ -11,6 +11,9 @@ finish () {
   
   # Cleanup variables
   unset $USERINPUT
+  unset $USERNAME
+  unset $USERSUDO
+  unset $USERGROUPS
   unset $LOOP_MAIN_DONE
   unset $LOOP_USERADD_DONE
   unset $LOOP_OPTAPP_DONE 
@@ -18,13 +21,13 @@ finish () {
   unset $LOOP_SCRIPTS_DONE
 }
 
-while [ -z $LOOP_MAIN_DONE ]; do
+while [ $LOOP_MAIN_DONE=no ]; do
   echo -e "Are you sure you want to do this?\nThis will overwrite your existing dotfiles. (Y/n)" 
   read USERINPUT
   case $USERINPUT in
     Y|y) 
 
-      while [ -z $LOOP_USERADD_DONE ]; do
+      while [ $LOOP_USERADD_DONE=no ]; do
         read -p "Do you want to add a new user? (Y/n) " USERINPUT
         case $USERINPUT in
           Y|y) 
@@ -43,7 +46,7 @@ while [ -z $LOOP_MAIN_DONE ]; do
             done
             ;;
           N|n) echo "Proceeding..." && LOOP_USERADD_DONE=yes;;
-          *) echo "Unknown input.";;
+          *) echo "Unknown input." && LOOP_USERADD_DONE=no;;
         esac
       done
   
@@ -75,7 +78,8 @@ while [ -z $LOOP_MAIN_DONE ]; do
       mv -f ~/dotfiles/.bash_profile ~
       mv -f ~/dotfiles/.editorconfig ~
 
-      while [ -z $LOOP_OPTGRUB_DONE ]; do
+      while [ $LOOP_OPTGRUB_DONE=no ]; do
+        LOOP_OPTGRUB_DONE=no
         read -p "Do you want to install my grub wallpaper (and config?) (Y/n) " USERINPUT
         case $USERINPUT in
           Y|y) 
@@ -89,7 +93,7 @@ while [ -z $LOOP_MAIN_DONE ]; do
             echo "Proceeding..."
             LOOP_OPTGRUB_DONE=yes
             ;;
-          *) echo "Unknown input";;
+          *) echo "Unknown input" && LOOP_OPTGRUB_DONE=no;;
         esac
       done
       
@@ -139,11 +143,22 @@ while [ -z $LOOP_MAIN_DONE ]; do
       echo "Installing plugin manager for Neovim... (vim-plug)"
       curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs \
            https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-      echo "To install the plugins, open Neovim and run :PlugInstall"
-      sleep 1
-      
+
       echo "Installing fonts required for Neovim..."
       sudo pacman -S --needed nerd-fonts ttf-fira-code --noconfirm
+      
+      touch ~/.dda-nvim-setup.tmp
+      echo "REQUIRED:" > ~/.dda-nvim-setup.tmp
+      echo "In normal mode, run the following command:" > ~/.dda-nvim-setup.tmp
+      echo ":PlugInstall"> ~/.dda-nvim-setup.tmp
+      echo "When it has finished, run the following command two times." > ~/.dda-nvim-setup.tmp
+      echo ":q!" > ~/.dda-nvim-setup.tmp
+
+      nvim ~/.dda-nvim-setup.tmp
+      rm ~/.dda-nvim-setup.tmp
+      
+      echo "Installing fonts required for Polybar..."
+      sudo pacman -S --needed ttf-font-awesome --noconfirm
       
       echo "Setting .xinitrc..."
       echo "awesome" >> ~/.xinitrc
@@ -157,13 +172,18 @@ while [ -z $LOOP_MAIN_DONE ]; do
       mkdir -p ~/.local/share/rofi/themes
       cp ~/rofi-themes-collection/themes/*.rasi ~/.local/share/rofi/themes/
 
-      echo "To select a theme, run rofi-theme-selector once you have run startx"
-      sleep 1
+      if [ -n $DISPLAY ]; then
+        rofi-theme-selector
+      else
+        echo "To select a theme, run rofi-theme-selector once you have run startx"
+        sleep 1
+      fi
 
       echo "Cleaning up..."
       rm -rf ~/rofi-themes-collection
 
-      while [ -z $LOOP_SCRIPTS_DONE ]; do
+      while [ $LOOP_SCRIPTS_DONE=no ]; do
+        LOOP_SCRIPTS_DONE=no
         read -p "Do you also want to install my scripts? (Y/n) " USERINPUT
         case $USERINPUT in
             Y|y) 
@@ -184,7 +204,7 @@ while [ -z $LOOP_MAIN_DONE ]; do
               LOOP_SCRIPTS_DONE=yes
               ;;
             N|n) echo "Proceeding..." && LOOP_SCRIPTS_DONE=yes;;
-            *) echo "Unknown input.";;
+            *) echo "Unknown input." && LOOP_SCRIPTS_DONE=no;;
         esac
       done
 
@@ -192,22 +212,24 @@ while [ -z $LOOP_MAIN_DONE ]; do
         echo "Downloading polybar startup script..."
         mkdir ~/Scripts
         cd ~/Scripts && curl -flO https://raw.githubusercontent.com/0xBooper/Scripts/main/Scripts/launchPolybar 
+        echo "Giving it permissions..."
         chmod +x ~/Scripts/launchPolybar
         cd ~
       fi            
 
-      while [ -z $LOOP_OPTAPP_DONE ]; do
+      while [ $LOOP_OPTAPP_DONE=no ]; do
+        LOOP_OPTAPP_DONE=no
         read -p "Would you like to install some of the applications I use? (discord, firefox) (Y/n)" USERINPUT
         case $USERINPUT in
             Y|y) sudo pacman -S --needed discord firefox --noconfirm;;
             N|n) echo "Proceeding..." && LOOP_OPTAPP_DONE=yes;;
-            *) echo "Unknown input";;
+            *) echo "Unknown input" && LOOP_OPTAPP_DONE=no;;
         esac
       done
 
       LOOP_MAIN_DONE=yes
       finish;;
     N|n) echo "Aborting... (no changes made)" && LOOP_MAIN_DONE=yes && exit 0;;
-    *) echo "Unknown input.";;
+    *) echo "Unknown input." && LOOP_MAIN_DONE=no;;
   esac
 done
