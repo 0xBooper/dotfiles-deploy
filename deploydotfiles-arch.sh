@@ -9,16 +9,27 @@ finish () {
   echo "Have a nice day/night."
   exit 0
   
+  [ $PROMPT_NITROGEN="TRUE" ] && echo "To set a wall paper, run startx, then, run nitrogen"
+
   # Cleanup variables
+  ## Main input variable
   unset $USERINPUT
+
+  ## User creation variables
   unset $USERNAME
   unset $USERSUDO
   unset $USERGROUPS
+
+  ## Loop variables
   unset $LOOP_MAIN_DONE
   unset $LOOP_USERADD_DONE
   unset $LOOP_OPTAPP_DONE 
   unset $LOOP_OPTGRUB_DONE
   unset $LOOP_SCRIPTS_DONE
+  unset $LOOP_WALLPAPER_DONE
+
+  ## Prompt-if-needed variables
+  unset $PROMPT_NITROGEN
 }
 
 while [ $LOOP_MAIN_DONE=no ]; do
@@ -79,7 +90,6 @@ while [ $LOOP_MAIN_DONE=no ]; do
       mv -f ~/dotfiles/.editorconfig ~
 
       while [ $LOOP_OPTGRUB_DONE=no ]; do
-        LOOP_OPTGRUB_DONE=no
         read -p "Do you want to install my grub wallpaper (and config?) (Y/n) " USERINPUT
         case $USERINPUT in
           Y|y) 
@@ -97,55 +107,79 @@ while [ $LOOP_MAIN_DONE=no ]; do
         esac
       done
       
+      while [ $LOOP_WALLPAPER_DONE=no ]; do
+        read -p "Do you want to install only the wallpaper I use (1), or a collection of wallpapers (makccr's)? (2) " USERINPUT
+     
+        case $USERINPUT in 
+          1)
+            echo "Downloading wallpapers... (This may take a while!)"
+            git clone --depth 1 https://github.com/makccr/wallpapers.git &> /dev/null
+
+            echo "Installing wallpapers..."
+            [ ! -d ~/Media/Wallpapers ] && mkdir --parents ~/Media/Wallpapers
+            mv ~/wallpapers/wallpapers/*/*.jpg ~/Media/Wallpapers
+            rm -rf ~/wallpapers
+
+            echo "Wallpapers installed"
+
+            if [ -n $DISPLAY ]; then
+              nitrogen --set-zoom-fill ~/Media/Wallpapers 
+            else
+              PROMPT_NITROGEN="TRUE"
+            fi
+            ;;
+          2)
+            echo "Installing wallpaper..."
+            [ ! -d ~/Media/Wallpapers ] && mkdir --parents ~/Media/Wallpapers
+            mv ~/dotfiles/MEDIA-firewatch-a.jpg ~/Media/Wallpapers
+            echo "Wallpapers installed"
+
+            if [ -n $DISPLAY ]; then
+              nitrogen --set-zoom-fill --save ~/Media/Wallpapers
+            fi
+        esac
+      done
+
       echo "Cleaning up..."
       rm -rf ~/dotfiles
-      
-      echo "Downloading wallpapers..."
-      git clone --depth 1 https://github.com/makccr/wallpapers.git
-
-      echo "Deploying wallpapers..."
-      [ ! -d ~/Media/Wallpapers ] && mkdir --parents ~/Media/Wallpapers
-      mv ~/wallpapers/wallpapers/*/*.jpg ~/Media/Wallpapers
-      rm -rf ~/wallpapers
 
       if [ ! -f /bin/pfetch ]; then
-        echo "Downloading pfetch..."
-        git clone https://github.com/dylanaraps/pfetch.git
+        echo "Downloading pfetch... (May take a while, depending on internet speed)"
+        git clone https://github.com/dylanaraps/pfetch.git &> /dev/null
         echo "Installing pfetch..."
-        cd ~/pfetch && sudo make install
+        cd ~/pfetch && sudo make install 
         echo "Cleaning up..."
         cd ~ && rm -rf ~/pfetch
       fi
       
       if [ ! -f /bin/yay ]; then
-        echo "Downloading yay (AUR helper)..."
-        sudo pacman -S --needed base-devel --noconfirm 
-        git clone https://aur.archlinux.org/yay.git
+        echo "Downloading yay (AUR helper)... (May take a while, depending on internet speed)"
+        sudo pacman -S --needed base-devel --noconfirm &> /dev/null
+        git clone https://aur.archlinux.org/yay.git &> /dev/null
         
         echo "Installing yay (AUR helper)..."
-        cd ~/yay && makepkg -si --needed --noconfirm 
+        cd ~/yay && makepkg -si --needed --noconfirm &> /dev/null 
         
         echo "Cleaning up..."
         cd ~ && rm -rf ~/yay
         
         echo "Getting yay setup..."
-        yay -Y --gendb --needed --noconfirm
-        yay -Syu --devel --needed --noconfirm
-        yay -Y --devel --save --needed --noconfirm
+        yay -Y --gendb --needed --noconfirm &> /dev/null
+        yay -Syu --devel --needed --noconfirm &> /dev/null
+        yay -Y --devel --save --needed --noconfirm &> /dev/null
       fi
       
-      echo "Installing ly (login manager)..."
-      yay -S ly --needed --noconfirm --removemake --answerclean All --answerdiff None 
+      echo "Downloading and installing ly (login manager)... (May take a while, depending on internet speed)"
+      yay -S ly --needed --noconfirm --removemake --answerclean All --answerdiff None &> /dev/null
 
       echo "Enabling ly (login manager)..."
       sudo systemctl enable ly
       
       echo "Installing plugin manager for Neovim... (vim-plug)"
-      curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs \
-           https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+      curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim &> /dev/null
 
       echo "Installing fonts required for Neovim..."
-      sudo pacman -S --needed nerd-fonts ttf-fira-code --noconfirm
+      sudo pacman -S --needed nerd-fonts ttf-fira-code --noconfirm 
       
       touch ~/.dda-nvim-setup.tmp
       echo "REQUIRED:" > ~/.dda-nvim-setup.tmp
