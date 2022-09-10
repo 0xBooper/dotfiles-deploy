@@ -63,14 +63,11 @@ while [ $LOOP_MAIN_DONE=no ]; do
   
       cd ~ 
   
-      echo "Updating keyring..."
-      sudo pacman -Sy archlinux-keyring --noconfirm --needed
-      
-      echo "Updating system..."
-      sudo pacman -Su --noconfirm --needed
+      echo "Upgrading system..."
+      sudo apt-get update -y && sudo apt-get upgrade -y
       
       echo "Installing required things..."
-      sudo pacman -S --needed exa highlight awesome git neofetch neovim base-devel xorg xorg-xinit zsh rofi nitrogen kitty picom kmix polybar network-manager-applet --noconfirm
+      sudo apt-get install -y exa awesome git neofetch neovim build-essential xorg xorg-xinit zsh rofi nitrogen kitty picom kmix polybar network-manager-applet --noconfirm
       
       echo "Getting dotfiles..."
       git clone https://github.com/0xBooper/dotfiles.git 
@@ -179,7 +176,7 @@ while [ $LOOP_MAIN_DONE=no ]; do
       curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim &> /dev/null
 
       echo "Installing fonts required for Neovim..."
-      sudo pacman -S --needed nerd-fonts ttf-fira-code --noconfirm 
+      sudo apt-get install -y nerd-fonts ttf-fira-code --noconfirm 
       
       touch ~/.dda-nvim-setup.tmp
       echo "REQUIRED:" > ~/.dda-nvim-setup.tmp
