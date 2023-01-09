@@ -3,22 +3,28 @@
 # PS: If the code is spaghetti to you (which it probably is), that's because im a terrible shell scripter, sorry.
 # PS Part Two, Electric Boogaloo: The $LOOPs are for restarting the prompt in case a user inputs some wrong stuff.
 
+
+# Finishing functions
 finish () {
+  touch ~/thingstodo.txt
+  echo "---THINGS TO DO AFTER REBOOTING---" > ~/thingstodo.txt
+  echo "1. Run rofi-theme-selector and select a theme you like." >> ~/thingstodo.txt
+  echo "2. If you chose to install multiple wallpapers, run nitrogen and pick one you like." >> ~/thingstodo.txt
+  echo "3. Enjoy your new Arch Linux System! Once doing all these instructions, you may remove this text file." >> ~/thingstodo.txt
+  echo "Thanks for using my dotfiles!" >> ~/thingstodo.txt
+
+
   echo "My (0xBooper)'s dotfiles have successfully been installed onto your system."
   echo "Take some time to look at them and configure it however you want."
   echo "Have a nice day/night."
+  echo "----------"
+  echo "Things to do after rebooting have been left in ~/thingstodo.txt"
+  echo "Please read it's instructions and do them."
   exit 0
   
-  [ $PROMPT_NITROGEN="TRUE" ] && echo "To set a wall paper, run startx, then, run nitrogen"
-
   # Cleanup variables
   ## Main input variable
   unset $USERINPUT
-
-  ## User creation variables
-  unset $USERNAME
-  unset $USERSUDO
-  unset $USERGROUPS
 
   ## Loop variables
   unset $LOOP_MAIN_DONE
@@ -32,196 +38,185 @@ finish () {
   unset $PROMPT_NITROGEN
 }
 
+# Colors
+RED="\033[1;31m"
+GREEN="\033[1;32m"
+END="\033[0m"
+
+[[ "$(whoami)" = "root" ]] && echo -e "\n${RED}You must run this script as a non-root user with superuser priviledges.${END}" && exit 1
+
+
+
 while [ $LOOP_MAIN_DONE=no ]; do
-  echo -e "Are you sure you want to do this?\nThis will overwrite your existing dotfiles. (Y/n)" 
+  echo -en "Are you sure you want to do this?\n${RED}This will overwrite your existing dotfiles!${END} (${GREEN}Y${END}/${RED}n${END})" 
   read USERINPUT
   case $USERINPUT in
     Y|y) 
-
-      while [ $LOOP_USERADD_DONE=no ]; do
-        read -p "Do you want to add a new user? (Y/n) " USERINPUT
-        case $USERINPUT in
-          Y|y) 
-            while [ -z $LOOP_USERADD_DONE ]; do
-              read -p "Name of the user (required): " USERNAME
-              read -p "Should this user have sudo permissions? (Y/n): " USERSUDO
-              read -p "Groups (optional, separated by commas): " USERGROUPS
-              
-              # Check if the username is nonexistant
-              [ -z $LOOP_USERADD_DONE ] && [ -z $USERNAME ] && echo "The name of the user is required!"
-
-              # Check for met values
-              [ -z $LOOP_USERADD_DONE ] && [ -n $USERNAME ] && [ $USERSUDO = Y -o $USERSUDO = y ] && [ -n $USERGROUPS ] && echo "Creating user..." && sudo useradd -G wheel,$USERGROUPS -m $USERNAME && sudo passwd $USERNAME && su $USERNAME && LOOP_USERADD_DONE=yes
-              [ -z $LOOP_USERADD_DONE ] && [ -n $USERNAME ] && [ -n $USERGROUPS ] && echo "Creating user..." && sudo useradd -G $USERGROUPS -m $USERNAME && sudo passwd $USERNAME && su $USERNAME && LOOP_USERADD_DONE=yes
-              [ -z $LOOP_USERADD_DONE ] && [ -n $USERNAME ] && [ $USERSUDO = Y -o $USERSUDO = y ] && echo "Creating user..." && sudo useradd -G wheel -m $USERNAME && sudo passwd $USERNAME && su $USERNAME && LOOP_USERADD_DONE=yes
-            done
-            ;;
-          N|n) echo "Proceeding..." && LOOP_USERADD_DONE=yes;;
-          *) echo "Unknown input." && LOOP_USERADD_DONE=no;;
-        esac
-      done
-  
       cd ~ 
   
-      echo "Updating keyring..."
+      echo -e "\n${GREEN}Updating keyring...${END}"
       sudo pacman -Sy archlinux-keyring --noconfirm --needed
       
-      echo "Updating system..."
+      echo -e "\n${GREEN}Updating system...${END}"
       sudo pacman -Su --noconfirm --needed
       
-      echo "Installing required things..."
+      echo -e "\n${GREEN}Installing required things...${END}"
       sudo pacman -S --needed exa highlight awesome git neofetch neovim base-devel xorg xorg-xinit zsh rofi nitrogen kitty picom kmix polybar network-manager-applet --noconfirm
       
-      echo "Getting dotfiles..."
+      echo -e "\n${GREEN}Downloading dotfiles...${END}"
       git clone https://github.com/0xBooper/dotfiles.git 
       
-      echo "Deploying dotfiles..."
+      echo -e "\n${GREEN}Installing dotfiles...${END}"
       rm -rf ~/dotfiles/.git ~/dotfiles/README.md ~/dotfiles/LICENSE ~/dotfiles/.gitignore
       
+      # Create .config if not created
       [ ! -d ~/.config ] && mkdir ~/.config
+
+      # Clear existing configs
       [ -d ~/.config/bash ] && rm -rf ~/.config/bash
       [ -d ~/.config/polybar ] && rm -rf ~/.config/polybar
       [ -d ~/.config/awesome ] && rm -rf ~/.config/awesome
       [ -d ~/.config/nvim ] && rm -rf ~/.config/nvim
       [ -d ~/.config/kitty ] && rm -rf ~/.config/kitty
+
+      # Move dotfiles
       mv -f ~/dotfiles/.config/* ~/.config
       mv -f ~/dotfiles/.bashrc ~
       mv -f ~/dotfiles/.bash_profile ~
       mv -f ~/dotfiles/.editorconfig ~
 
       while [ $LOOP_OPTGRUB_DONE=no ]; do
-        read -p "Do you want to install my grub wallpaper (and config?) (Y/n) " USERINPUT
+        echo -en "\nDo you want to install my grub wallpaper (and config?) (${GREEN}Y${END}/${RED}n${END}) " && read USERINPUT 
         case $USERINPUT in
           Y|y) 
-            echo "Installing wallpaper and setting grub config..."
+            echo -e "\n${GREEN}Installing wallpaper and setting grub config...${END}"
             [ ! -d ~/Media/Wallpapers ] && mkdir --parents ~/Media/Wallpapers
             sudo mv -f ~/dotfiles/grub/grub  /etc/default/grub
             mv -f ~/dotfiles/grub/sunset.png ~/Media/Wallpapers
-            LOOP_OPTGRUB_DONE=yes
+            break
             ;;
           N|n)
             echo "Proceeding..."
-            LOOP_OPTGRUB_DONE=yes
+            break
             ;;
           *) echo "Unknown input" && LOOP_OPTGRUB_DONE=no;;
         esac
       done
       
       while [ $LOOP_WALLPAPER_DONE=no ]; do
-        read -p "Do you want to install only the wallpaper I use (1), or a collection of wallpapers (makccr's)? (2) " USERINPUT
+        echo -en "\nDo you want to install a collection of wallpapers (makccr's)? (1), or only the one I use? (2) " && read USERINPUT 
      
         case $USERINPUT in 
           1)
-            echo "Downloading wallpapers... (This may take a while!)"
+            echo -e "\n${GREEN}Downloading wallpapers...${END} ${RED}(This may take a while!)${END}"
             git clone --depth 1 https://github.com/makccr/wallpapers.git &> /dev/null
 
-            echo "Installing wallpapers..."
+            echo -e "\n${GREEN}Installing wallpapers...${END}"
             [ ! -d ~/Media/Wallpapers ] && mkdir --parents ~/Media/Wallpapers
             mv ~/wallpapers/wallpapers/*/*.jpg ~/Media/Wallpapers
             rm -rf ~/wallpapers
 
-            echo "Wallpapers installed"
+            echo -e "\n${GREEN}Wallpapers installed.${END}"
 
             if [ -n $DISPLAY ]; then
               nitrogen --set-zoom-fill ~/Media/Wallpapers 
-            else
-              PROMPT_NITROGEN="TRUE"
             fi
+
+            LOOP_WALLPAPER_DONE=yes
+            break
             ;;
           2)
-            echo "Installing wallpaper..."
+            echo -e "\n${GREEN}Installing the specific wallpaper I use...${END}"
             [ ! -d ~/Media/Wallpapers ] && mkdir --parents ~/Media/Wallpapers
             mv ~/dotfiles/MEDIA-firewatch-a.jpg ~/Media/Wallpapers
-            echo "Wallpapers installed"
+            echo -e "\n${GREEN}Wallpaper installed.${END}"
 
             if [ -n $DISPLAY ]; then
               nitrogen --set-zoom-fill --save ~/Media/Wallpapers
             fi
+
+            LOOP_WALLPAPER_DONE=yes
+            break
+            ;;
         esac
       done
 
-      echo "Cleaning up..."
+      echo -e "\n${GREEN}Cleaning up...${END}"
       rm -rf ~/dotfiles
 
       if [ ! -f /bin/pfetch ]; then
-        echo "Downloading pfetch... (May take a while, depending on internet speed)"
+        echo -e "\n${GREEN}Downloading pfetch...${END} ${RED}(May take a while, depending on internet speed)${END}"
         git clone https://github.com/dylanaraps/pfetch.git &> /dev/null
-        echo "Installing pfetch..."
+        echo -e "\n${GREEN}Installing pfetch...${END}"
         cd ~/pfetch && sudo make install 
-        echo "Cleaning up..."
+        echo -e "\n${GREEN}Cleaning up...${END}"
         cd ~ && rm -rf ~/pfetch
       fi
       
       if [ ! -f /bin/yay ]; then
-        echo "Downloading yay (AUR helper)... (May take a while, depending on internet speed)"
+        echo -e "\n${GREEN}Downloading yay (AUR helper)... ${RED}(May take a while, depending on internet speed)${END}"
         sudo pacman -S --needed base-devel --noconfirm &> /dev/null
         git clone https://aur.archlinux.org/yay.git &> /dev/null
         
-        echo "Installing yay (AUR helper)..."
+        echo -e "\n${GREEN}Installing yay (AUR helper)...${END}"
         cd ~/yay && makepkg -si --needed --noconfirm &> /dev/null 
         
-        echo "Cleaning up..."
+        echo -e "\n${GREEN}Cleaning up...${END}"
         cd ~ && rm -rf ~/yay
         
-        echo "Getting yay setup..."
+        echo -e "\n${GREEN}Getting yay setup...${END}"
         yay -Y --gendb --needed --noconfirm &> /dev/null
         yay -Syu --devel --needed --noconfirm &> /dev/null
         yay -Y --devel --save --needed --noconfirm &> /dev/null
       fi
       
-      echo "Downloading and installing ly (login manager)... (May take a while, depending on internet speed)"
+      echo -e "\n${GREEN}Downloading and installing ly (login manager)...${END} ${RED}(May take a while, depending on internet speed)${END}"
       yay -S ly --needed --noconfirm --removemake --answerclean All --answerdiff None &> /dev/null
 
-      echo "Enabling ly (login manager)..."
+      echo -e "\n${GREEN}Enabling ly (login manager)...${END}"
       sudo systemctl enable ly
       
-      echo "Installing plugin manager for Neovim... (vim-plug)"
+      echo -e "\n${GREEN}Installing plugin manager for Neovim... (vim-plug)${END}"
       curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim &> /dev/null
 
-      echo "Installing fonts required for Neovim..."
+      echo -e "\n${GREEN}Installing fonts required for Neovim...${END}"
       sudo pacman -S --needed nerd-fonts ttf-fira-code --noconfirm 
       
+      # Installing plugins (can't be done automatically)
       touch ~/.dda-nvim-setup.tmp
       echo "REQUIRED:" > ~/.dda-nvim-setup.tmp
-      echo "In normal mode, run the following command:" > ~/.dda-nvim-setup.tmp
-      echo ":PlugInstall"> ~/.dda-nvim-setup.tmp
-      echo "When it has finished, run the following command two times." > ~/.dda-nvim-setup.tmp
-      echo ":q!" > ~/.dda-nvim-setup.tmp
+      echo "In normal mode, run the following command:" >> ~/.dda-nvim-setup.tmp
+      echo ":PlugInstall" >> ~/.dda-nvim-setup.tmp
+      echo "When it has finished, run the following command two times." >> ~/.dda-nvim-setup.tmp
+      echo ":q!" >> ~/.dda-nvim-setup.tmp
 
       nvim ~/.dda-nvim-setup.tmp
       rm ~/.dda-nvim-setup.tmp
       
-      echo "Installing fonts required for Polybar..."
+      echo -e "\n${GREEN}Installing fonts required for Polybar...${END}"
       sudo pacman -S --needed ttf-font-awesome --noconfirm
       
-      echo "Setting .xinitrc..."
+      echo -e "\n${GREEN}Setting .xinitrc...${END}"
       echo "awesome" >> ~/.xinitrc
       
-      echo "Setting rofi up..."
+      echo -e "\n${GREEN}Setting rofi up...${END}"
       mkdir --parents ~/.config/rofi
       rofi -dump-config > ~/.config/rofi/config.rasi
 
-      echo "Downloading rofi themes..." 
+      echo -e "\n${GREEN}Downloading rofi themes...${END}" 
       git clone https://github.com/lr-tech/rofi-themes-collection
       mkdir -p ~/.local/share/rofi/themes
       cp ~/rofi-themes-collection/themes/*.rasi ~/.local/share/rofi/themes/
 
-      if [ -n $DISPLAY ]; then
-        rofi-theme-selector
-      else
-        echo "To select a theme, run rofi-theme-selector once you have run startx"
-        sleep 1
-      fi
-
-      echo "Cleaning up..."
+      echo -e "\n${GREEN}Cleaning up..${END}"
       rm -rf ~/rofi-themes-collection
 
       while [ $LOOP_SCRIPTS_DONE=no ]; do
         LOOP_SCRIPTS_DONE=no
-        read -p "Do you also want to install my scripts? (Y/n) " USERINPUT
+        echo -en "\nDo you also want to install my scripts? (${GREEN}Y${END}/${RED}n${END}) " && read USERINPUT
         case $USERINPUT in
             Y|y) 
-              echo "Downloading scripts..."
+              echo -e "\n${GREEN}Downloading scripts...${END}"
               git clone https://github.com/0xBooper/Scripts
               mkdir ~/temp
             
@@ -229,21 +224,22 @@ while [ $LOOP_MAIN_DONE=no ]; do
               rm -rf ~/Scripts
               mkdir ~/Scripts
             
-              echo "Deploying scripts..."
+              echo -e "\n${GREEN}Deploying scripts...${END}"
               mv ~/temp/* ~/Scripts
             
-              echo "Cleaning up..."
+              echo -e "\n${GREEN}Cleaning up...${END}"
               rm -rf ~/temp
 
               LOOP_SCRIPTS_DONE=yes
+              break
               ;;
-            N|n) echo "Proceeding..." && LOOP_SCRIPTS_DONE=yes;;
+            N|n) echo "Proceeding..." && LOOP_SCRIPTS_DONE=yes && break;;
             *) echo "Unknown input." && LOOP_SCRIPTS_DONE=no;;
         esac
       done
 
       if [ ! -d ~/Scripts ]; then
-        echo "Downloading polybar startup script..."
+        echo -e "\n${GREEN}Downloading polybar startup script...${END}"
         mkdir ~/Scripts
         cd ~/Scripts && curl -flO https://raw.githubusercontent.com/0xBooper/Scripts/main/Scripts/launchPolybar 
         echo "Giving it permissions..."
@@ -253,10 +249,10 @@ while [ $LOOP_MAIN_DONE=no ]; do
 
       while [ $LOOP_OPTAPP_DONE=no ]; do
         LOOP_OPTAPP_DONE=no
-        read -p "Would you like to install some of the applications I use? (discord, firefox) (Y/n)" USERINPUT
+        echo -en "\nWould you like to install some of the applications I use? (discord, firefox) (${GREEN}Y${END}/${RED}n${END})" && read USERINPUT
         case $USERINPUT in
-            Y|y) sudo pacman -S --needed discord firefox --noconfirm;;
-            N|n) echo "Proceeding..." && LOOP_OPTAPP_DONE=yes;;
+            Y|y) echo -e "\n${GREEN}Installing Discord & Firefox...${END}" && sudo pacman -S --needed discord firefox --noconfirm && LOOP_OPTAPP_DONE=yes && break;;
+            N|n) echo "Proceeding..." && LOOP_OPTAPP_DONE=yes && break;;
             *) echo "Unknown input" && LOOP_OPTAPP_DONE=no;;
         esac
       done
