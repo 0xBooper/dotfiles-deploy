@@ -1,11 +1,11 @@
 #!/bin/sh
-# 0xBooper's dotfile deployer script. Licensed under the GPLv3 license.
-# PS: If the code is spaghetti to you (which it probably is), that's because im a terrible shell scripter, sorry.
-# PS Part Two, Electric Boogaloo: The $LOOPs are for restarting the prompt in case a user inputs some wrong stuff.
-
+# My (0xBooper's) script to deploy my dotfiles. Licensed under the GPLv3 License.
+# Should work on any arch-based distro, but can (and maybe will) be ported to debian-based distros.
 
 # Finishing functions
 finish () {
+
+  # Just a nice little things to do message
   touch ~/thingstodo.txt
   echo "---THINGS TO DO AFTER REBOOTING---" > ~/thingstodo.txt
   echo "1. Run rofi-theme-selector and select a theme you like." >> ~/thingstodo.txt
@@ -38,15 +38,18 @@ finish () {
   unset $PROMPT_NITROGEN
 }
 
-# Colors
+# Colors to make everything look cooler
 RED="\033[1;31m"
 GREEN="\033[1;32m"
-END="\033[0m"
+END="\033[0m" # Used to make sure following text isn't colored
 
+# Check if root, as script cannot be run with root
 [[ "$(whoami)" = "root" ]] && echo -e "\n${RED}You must run this script as a non-root user with superuser priviledges.${END}" && exit 1
 
 
 
+# Main loop.
+# Loops are used to repeat the prompt if a user does not enter a valid response.
 while [ $LOOP_MAIN_DONE=no ]; do
   echo -en "Are you sure you want to do this?\n${RED}This will overwrite your existing dotfiles!${END} (${GREEN}Y${END}/${RED}n${END})" 
   read USERINPUT
@@ -61,7 +64,7 @@ while [ $LOOP_MAIN_DONE=no ]; do
       sudo pacman -Su --noconfirm --needed
       
       echo -e "\n${GREEN}Installing required things...${END}"
-      sudo pacman -S --needed exa highlight awesome git neofetch neovim base-devel xorg xorg-xinit zsh rofi nitrogen kitty picom kmix polybar network-manager-applet --noconfirm
+      sudo pacman -S --needed nodejs yarn bat exa highlight awesome git neofetch neovim base-devel xorg xorg-xinit zsh rofi nitrogen kitty picom kmix polybar network-manager-applet --noconfirm
       
       echo -e "\n${GREEN}Downloading dotfiles...${END}"
       git clone https://github.com/0xBooper/dotfiles.git 
@@ -86,20 +89,26 @@ while [ $LOOP_MAIN_DONE=no ]; do
       mv -f ~/dotfiles/.editorconfig ~
 
       while [ $LOOP_OPTGRUB_DONE=no ]; do
-        echo -en "\nDo you want to install my grub wallpaper (and config?) (${GREEN}Y${END}/${RED}n${END}) " && read USERINPUT 
+        echo -en "\nDo you want to use my grub wallpaper and config? (${GREEN}Y${END}/${RED}n${END}) " && read USERINPUT 
         case $USERINPUT in
           Y|y) 
-            echo -e "\n${GREEN}Installing wallpaper and setting grub config...${END}"
+            echo -e "\n${GREEN}Installing wallpaper...${END}"
             [ ! -d ~/Media/Wallpapers ] && mkdir --parents ~/Media/Wallpapers
-            sudo mv -f ~/dotfiles/grub/grub  /etc/default/grub
             mv -f ~/dotfiles/grub/sunset.png ~/Media/Wallpapers
+
+            echo -e "\n${GREEN}Updating grub config...${END}"
+            sudo mv -f ~/dotfiles/grub/grub  /etc/default/grub
+            
+            echo -e "\n${GREEN}Doing grub-mkconfig..."
+            sudo grub-mkconfig -o /boot/grub/grub.cfg
+
             break
             ;;
           N|n)
             echo "Proceeding..."
             break
             ;;
-          *) echo "Unknown input" && LOOP_OPTGRUB_DONE=no;;
+          *) echo -e "\n${RED}Unknown input${END}" && LOOP_OPTGRUB_DONE=no;;
         esac
       done
       
@@ -144,6 +153,10 @@ while [ $LOOP_MAIN_DONE=no ]; do
       echo -e "\n${GREEN}Cleaning up...${END}"
       rm -rf ~/dotfiles
 
+      echo -e "\n${GREEN}Installing required fonts... ${END}"
+      sudo pacman -S --needed nerd-fonts ttf-fira-code ttf-roboto-mono ttf-font-awesome --noconfirm 
+
+      # If pfetch isn't installed, install it
       if [ ! -f /bin/pfetch ]; then
         echo -e "\n${GREEN}Downloading pfetch...${END} ${RED}(May take a while, depending on internet speed)${END}"
         git clone https://github.com/dylanaraps/pfetch.git &> /dev/null
@@ -153,6 +166,7 @@ while [ $LOOP_MAIN_DONE=no ]; do
         cd ~ && rm -rf ~/pfetch
       fi
       
+      # If yay isn't installed, install it
       if [ ! -f /bin/yay ]; then
         echo -e "\n${GREEN}Downloading yay (AUR helper)... ${RED}(May take a while, depending on internet speed)${END}"
         sudo pacman -S --needed base-devel --noconfirm &> /dev/null
@@ -170,7 +184,7 @@ while [ $LOOP_MAIN_DONE=no ]; do
         yay -Y --devel --save --needed --noconfirm &> /dev/null
       fi
       
-      echo -e "\n${GREEN}Downloading and installing ly (login manager)...${END} ${RED}(May take a while, depending on internet speed)${END}"
+      echo -e "\n${GREEN}Installing ly (login manager)...${END} ${RED}(May take a while, depending on internet speed)${END}"
       yay -S ly --needed --noconfirm --removemake --answerclean All --answerdiff None &> /dev/null
 
       echo -e "\n${GREEN}Enabling ly (login manager)...${END}"
@@ -179,8 +193,6 @@ while [ $LOOP_MAIN_DONE=no ]; do
       echo -e "\n${GREEN}Installing plugin manager for Neovim... (vim-plug)${END}"
       curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim &> /dev/null
 
-      echo -e "\n${GREEN}Installing fonts required for Neovim...${END}"
-      sudo pacman -S --needed nerd-fonts ttf-fira-code --noconfirm 
       
       # Installing plugins (can't be done automatically)
       touch ~/.dda-nvim-setup.tmp
@@ -193,9 +205,6 @@ while [ $LOOP_MAIN_DONE=no ]; do
       nvim ~/.dda-nvim-setup.tmp
       rm ~/.dda-nvim-setup.tmp
       
-      echo -e "\n${GREEN}Installing fonts required for Polybar...${END}"
-      sudo pacman -S --needed ttf-font-awesome --noconfirm
-      
       echo -e "\n${GREEN}Setting .xinitrc...${END}"
       echo "awesome" >> ~/.xinitrc
       
@@ -203,12 +212,12 @@ while [ $LOOP_MAIN_DONE=no ]; do
       mkdir --parents ~/.config/rofi
       rofi -dump-config > ~/.config/rofi/config.rasi
 
-      echo -e "\n${GREEN}Downloading rofi themes...${END}" 
+      echo -e "\n${GREEN}Downloading some cool rofi themes...${END}" 
       git clone https://github.com/lr-tech/rofi-themes-collection
       mkdir -p ~/.local/share/rofi/themes
       cp ~/rofi-themes-collection/themes/*.rasi ~/.local/share/rofi/themes/
 
-      echo -e "\n${GREEN}Cleaning up..${END}"
+      echo -e "\n${GREEN}Cleaning up...${END}"
       rm -rf ~/rofi-themes-collection
 
       while [ $LOOP_SCRIPTS_DONE=no ]; do
@@ -218,8 +227,12 @@ while [ $LOOP_MAIN_DONE=no ]; do
             Y|y) 
               echo -e "\n${GREEN}Downloading scripts...${END}"
               git clone https://github.com/0xBooper/Scripts
+
+              # Not using /tmp because thats kinda a hassle with using sudo
               mkdir ~/temp
             
+              # Move all the actual scripts into ~/temp, then remove the rest,
+              # getting rid of the git things.
               mv ~/Scripts/Scripts/* ~/temp
               rm -rf ~/Scripts
               mkdir ~/Scripts
@@ -234,7 +247,7 @@ while [ $LOOP_MAIN_DONE=no ]; do
               break
               ;;
             N|n) echo "Proceeding..." && LOOP_SCRIPTS_DONE=yes && break;;
-            *) echo "Unknown input." && LOOP_SCRIPTS_DONE=no;;
+            *) echo -e "\n${RED}Unknown input.${END}" && LOOP_SCRIPTS_DONE=no;;
         esac
       done
 
@@ -244,6 +257,7 @@ while [ $LOOP_MAIN_DONE=no ]; do
         cd ~/Scripts && curl -flO https://raw.githubusercontent.com/0xBooper/Scripts/main/Scripts/launchPolybar 
         echo "Giving it permissions..."
         chmod +x ~/Scripts/launchPolybar
+        echo -e "\n${RED}The polybar startup script is required, so don't remove it!${END}"
         cd ~
       fi            
 
@@ -253,13 +267,13 @@ while [ $LOOP_MAIN_DONE=no ]; do
         case $USERINPUT in
             Y|y) echo -e "\n${GREEN}Installing Discord & Firefox...${END}" && sudo pacman -S --needed discord firefox --noconfirm && LOOP_OPTAPP_DONE=yes && break;;
             N|n) echo "Proceeding..." && LOOP_OPTAPP_DONE=yes && break;;
-            *) echo "Unknown input" && LOOP_OPTAPP_DONE=no;;
+            *) echo -e "\n${RED}Unknown input${END}" && LOOP_OPTAPP_DONE=no;;
         esac
       done
 
       LOOP_MAIN_DONE=yes
       finish;;
     N|n) echo "Aborting... (no changes made)" && LOOP_MAIN_DONE=yes && exit 0;;
-    *) echo "Unknown input." && LOOP_MAIN_DONE=no;;
+    *) echo -e "\n${RED}Unknown input.${END}" && LOOP_MAIN_DONE=no;;
   esac
 done
